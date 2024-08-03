@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/ilyakaznacheev/cleanenv"
-	"github.com/nvr-ai/go-util/files"
 	"github.com/risersh/util/files"
 	"github.com/risersh/util/validation"
 )
