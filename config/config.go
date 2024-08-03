@@ -2,10 +2,11 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/nvr-ai/go-util/files"
+	"github.com/risersh/util/files"
 	"github.com/risersh/util/validation"
 )
 
@@ -70,39 +71,28 @@ func GetConfig[T any](env Environment) (*T, error) {
 	var base *BaseConfig
 	c := new(T)
 
-	if _, err := os.Stat(".env.local.base.yaml"); err == nil {
-		base = &BaseConfig{}
-		cleanenv.ReadConfig(".env.local.base.yaml", &base)
-	} else if _, err := os.Stat("../.env.local.base.yaml"); err == nil {
-		base = &BaseConfig{}
-		cleanenv.ReadConfig("../.env.local.base.yaml", &base)
-	} else if _, err := os.Stat("../../.env.local.base.yaml"); err == nil {
-		base = &BaseConfig{}
-		cleanenv.ReadConfig("../../.env.local.base.yaml", &base)
-	} else if _, err := os.Stat("../../../.env.local.base.yaml"); err == nil {
-		base = &BaseConfig{}
-		cleanenv.ReadConfig("../../../.env.local.base.yaml", &base)
-	} else if _, err := os.Stat("../../../../.env.local.base.yaml"); err == nil {
-		base = &BaseConfig{}
-		cleanenv.ReadConfig("../../../../.env.local.base.yaml", &base)
-	} else {
-		cleanenv.ReadEnv(&base)
-	}
-
-	if base == nil {
-		return nil, fmt.Errorf("base config not found in search paths")
-	}
-
 	if env == "" {
 		env = EnvironmentLocal
 	}
 
-	if _, err := os.Stat(fmt.Sprintf(".env.%s.yaml", env)); err == nil {
-		cleanenv.ReadConfig(fmt.Sprintf("./.env.%s.yaml", env), &c)
-	} else if _, err := os.Stat(fmt.Sprintf("../.env.%s.yaml", env)); err == nil {
-		cleanenv.ReadConfig(fmt.Sprintf("../.env.%s.yaml", env), &c)
-	} else if _, err := os.Stat(fmt.Sprintf("../../.env.%s.yaml", env)); err == nil {
-		cleanenv.ReadConfig(fmt.Sprintf("../../.env.%s.yaml", env), &c)
+	// Read base config from .env.local.base.yaml if env is local.
+	if env == EnvironmentLocal {
+		configPath := files.WalkFile(".env.local.base.yaml", 6)
+		if configPath != "" {
+			base = &BaseConfig{}
+			cleanenv.ReadConfig(configPath, &base)
+		} else {
+			cleanenv.ReadEnv(&base)
+		}
+	}
+	if base == nil {
+		return nil, fmt.Errorf("base config not found in search paths")
+	}
+
+	// Read config from .env.{env}.yaml if it exists.
+	configPath := files.WalkFile(fmt.Sprintf(".env.%s.yaml", env), 6)
+	if configPath != "" {
+		cleanenv.ReadConfig(configPath, &c)
 	} else {
 		cleanenv.ReadEnv(&c)
 	}

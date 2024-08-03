@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/risersh/util v0.0.0-20240803070601-cb2b624a6eaa
+	github.com/risersh/util v0.0.0-20240803191450-30b99f04deaa
 	github.com/stretchr/testify v1.9.0
 )
 
