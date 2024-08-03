@@ -79,6 +79,12 @@ func GetConfig[T any](env Environment) (*T, error) {
 	} else if _, err := os.Stat("../../.env.local.base.yaml"); err == nil {
 		base = &BaseConfig{}
 		cleanenv.ReadConfig("../../.env.local.base.yaml", &base)
+	} else if _, err := os.Stat("../../../.env.local.base.yaml"); err == nil {
+		base = &BaseConfig{}
+		cleanenv.ReadConfig("../../../.env.local.base.yaml", &base)
+	} else if _, err := os.Stat("../../../../.env.local.base.yaml"); err == nil {
+		base = &BaseConfig{}
+		cleanenv.ReadConfig("../../../../.env.local.base.yaml", &base)
 	} else {
 		cleanenv.ReadEnv(&base)
 	}
